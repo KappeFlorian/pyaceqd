@@ -135,4 +135,4 @@ def _dressed_states(dim, data, rho, colors, filename, plot=False):
         plt.savefig(filename + "_ds_occ.png")
         plt.clf()
 
-    return t, e_values, ds_occ, s_colors
+    return t, e_values, ds_occ, s_colors,rho

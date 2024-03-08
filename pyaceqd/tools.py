@@ -266,7 +266,7 @@ def read_calibration_file(calibration_file):
     biexciton_meV = 1239.8*1e3/biexciton_wavelength
     dark_meV = 1239.8*1e3/dark_wavelength
 
-    exciton_x_energy = fss_bright/2
+    exciton_x_energy = fss_bright/2 #sign correct? 
     exciton_y_energy = -fss_bright/2
     binding_energy = -(exciton_meV - biexciton_meV) # negatively defined
     dark_energy = (dark_meV-exciton_meV)

@@ -1,7 +1,7 @@
 import subprocess
 import numpy as np
 import os
-from pyaceqd.tools import export_csv
+from pyaceqd.tools import export_csv, read_calibration_file
 import tqdm
 from concurrent.futures import ThreadPoolExecutor
 from concurrent.futures import wait
@@ -11,10 +11,20 @@ from pyaceqd.general_system.general_dressed_states import dressed_states
 hbar = 0.6582173  # meV*ps
 
 def biexciton(t_start, t_end, *pulses, dt=0.5, delta_xy=0, delta_b=4, gamma_e=1/100, gamma_b=None, phonons=False, ae=3.0, temperature=4, verbose=False, lindblad=False, temp_dir='/mnt/temp_data/', pt_file=None, suffix="", \
-               multitime_op=None, pulse_file_x=None, pulse_file_y=None, prepare_only=False, output_ops=["|0><0|_4","|1><1|_4","|2><2|_4","|3><3|_4"], initial="|0><0|_4", t_mem=20.48, dressedstates=False, rf=False, rf_file=None, firstonly=False):
+               multitime_op=None, pulse_file_x=None, pulse_file_y=None, prepare_only=False, output_ops=["|0><0|_4","|1><1|_4","|2><2|_4","|3><3|_4"], initial="|0><0|_4", t_mem=20.48, dressedstates=False, rf=False, rf_file=None,
+                calibration_file=None, firstonly=False):
     system_prefix = "b_linear"
+
+    if calibration_file is not None:
+        E_X, E_Y, _, _, E_B, gamma_e, gamma_b, _, _, _, _ = read_calibration_file(calibration_file)
+        delta_xy = np.abs(E_X - E_Y)
+        delta_b = -E_B
+        system_op = ["-{}*|3><3|_4".format(delta_b),"{}*|1><1|_4".format(E_X),"{}*|2><2|_4".format(E_Y)]
+        
+
     # |0> = G, |1> = X, |2> = Y, |3> = B
-    system_op = ["-{}*|3><3|_4".format(delta_b),"-{}*|1><1|_4".format(delta_xy/2),"{}*|2><2|_4".format(delta_xy/2)]
+    else:
+        system_op = ["-{}*|3><3|_4".format(delta_b),"-{}*|1><1|_4".format(delta_xy/2),"{}*|2><2|_4".format(delta_xy/2)]
     boson_op = "1*(|1><1|_4 + |2><2|_4) + 2*|3><3|_4"
     lindblad_ops = []
     if lindblad:

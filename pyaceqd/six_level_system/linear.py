@@ -30,7 +30,7 @@ def sixls_linear(t_start, t_end, *pulses, dt=0.5, delta_b=4, gamma_e=1/100, gamm
     system_prefix = "sixls_linear"
     # |0> = G, |1> = X, |2> = Y, |3> = S = Dx, |4> = F = Dy, |5> = B
     if calibration_file is not None:
-        E_X, E_Y, E_S, E_F, E_B, gamma_e, gamma_b, gamma_d, g_ex, g_hx, g_ez, g_hz = read_calibration_file(calibration_file)
+        E_X, E_Y, E_S, E_F, E_B, gamma_e, gamma_b, g_ex, g_hx, g_ez, g_hz = read_calibration_file(calibration_file)
     else:
         E_X, E_Y, E_S, E_F, E_B = energies_linear(delta_B=delta_b)
         g_ex = -0.65  # in plane electron g factor
@@ -53,7 +53,7 @@ def sixls_linear(t_start, t_end, *pulses, dt=0.5, delta_b=4, gamma_e=1/100, gamm
             gamma_b = gamma_e
         lindblad_ops = [["|0><1|_6",gamma_e],["|0><2|_6",gamma_e],
                         ["|1><5|_6",gamma_b],["|2><5|_6",gamma_b],
-                        ["|0><3|_6",gamma_d],["|0><4|_6",gamma_d]]
+                        ["|0><3|_6",gamma_d],["|0><4|_6",gamma_d]] # Dark decay actually not needed
     interaction_ops = [["|1><0|_6+|5><1|_6","x"],["|2><0|_6+|5><2|_6","y"]]
     
     rf_op = None
@@ -70,8 +70,15 @@ def sixls_linear(t_start, t_end, *pulses, dt=0.5, delta_b=4, gamma_e=1/100, gamm
         return compose_dm(result, dim=6)
     return result
 
-def sixls_linear_dressed_states(t_start, t_end, *pulses, plot=True, filename="sixls_linear_dressed", firstonly=False, **options):
+def sixls_linear_dressed_states(t_start, t_end, *pulses, plot=True, filename="sixls_linear_dressed", firstonly=False,make_transparent = [], **options):
     colors = ["#0000cf", "#45b0ee", "#ff0022", "#9966cc", "#009e00", "#ffde39"]
+    #paper colors 1 ,2, 5 (XX)
+    colors = ["#4c9900", "#00ff00", "#00ff00", "#4c9900", "#4c9900", "#ffde39"]
+    
+
+    for i in make_transparent:
+        colors[i] = colors[i] + "00"
+
     dim = 6
     return dressed_states(sixls_linear, dim, t_start, t_end, *pulses, filename=filename, plot=plot, firstonly=firstonly, colors=colors, **options)
 
